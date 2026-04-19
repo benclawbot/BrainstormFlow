@@ -1,20 +1,51 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# BrainstormFlow
 
-# Run and deploy your AI Studio app
+BrainstormFlow is a Gemini-powered ideation workspace for exploring rough ideas, creative directions, and unusual prompts in a persistent chat-style interface.
 
-This contains everything you need to run your app locally.
+Instead of a blank note-taking canvas, it gives you a conversation loop: start a brainstorm, keep the session history, trigger quick creative modes, and follow grounded links when Gemini uses web search.
 
-View your app in AI Studio: https://ai.studio/apps/drive/1R6nUQ_K5cEjmVp3RZy7dEJ2BlFPlRFm1
+## What it does
 
-## Run Locally
+- Keeps multiple brainstorm sessions in local storage
+- Turns free-form prompts into exploratory conversations
+- Includes shortcut modes such as pattern hunt, wild mode, future scan, and mood board prompts
+- Renders responses in Markdown
+- Shows grounding links when Gemini uses Google Search
+- Works as a responsive single-page app with sidebar session history
 
-**Prerequisites:**  Node.js
+## Use Cases
 
+- Explore product concepts before writing specs
+- Break creative blocks with structured prompt shortcuts
+- Stress-test an idea from several angles
+- Generate rough directions for design, writing, strategy, or naming
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+## Quick Start
+
+Prerequisites:
+- Node.js
+- A Gemini API key exposed as `API_KEY`
+
+Run locally:
+
+```bash
+npm install
+API_KEY=your_key npm run dev
+```
+
+Then open the local Vite URL shown in the terminal.
+
+## How It Works
+
+The app stores sessions in `localStorage`, sends the full session history to Gemini, and uses a system prompt tuned for brainstorming. Responses can include grounding links from Google Search, which are surfaced in the UI alongside the generated text.
+
+## Project Structure
+
+- `App.tsx` — main UI, session management, quick commands
+- `services/geminiService.ts` — Gemini API integration
+- `components/` — Markdown rendering and UI pieces
+- `constants` / `types` — prompt config and shared models
+
+## Status
+
+Experimental prototype. Intended for solo use and fast idea exploration rather than team collaboration or production workflows.
