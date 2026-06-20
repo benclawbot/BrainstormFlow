@@ -8,8 +8,6 @@ import {
   Trash2, 
   LayoutDashboard, 
   BrainCircuit, 
-  Search, 
-  ExternalLink,
   Loader2,
   Menu,
   X,
@@ -24,8 +22,8 @@ import {
   Globe,
   Palette
 } from 'lucide-react';
-import { Message, Session, GroundingChunk } from './types';
-import { geminiService } from './services/geminiService';
+import { Message, Session } from './types';
+import { minimaxService } from './services/minimaxService';
 import { WELCOME_MESSAGE } from './constants';
 import MarkdownRenderer from './components/MarkdownRenderer';
 
@@ -113,14 +111,13 @@ const App: React.FC = () => {
     setIsLoading(true);
 
     try {
-      const { text, groundingLinks } = await geminiService.generateResponse(updatedMessages);
+      const { text } = await minimaxService.generateResponse(updatedMessages);
       
       const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
         content: text,
-        timestamp: Date.now(),
-        groundingLinks
+        timestamp: Date.now()
       };
 
       setSessions(prev => prev.map(s => 
@@ -129,6 +126,7 @@ const App: React.FC = () => {
           : s
       ));
     } catch (error) {
+      console.error('MiniMax API Error:', error);
       const errorMessage: Message = {
         id: 'error',
         role: 'assistant',
@@ -279,28 +277,6 @@ const App: React.FC = () => {
                   </div>
                 </div>
 
-                {msg.groundingLinks && msg.groundingLinks.length > 0 && (
-                  <div className="mt-4 pt-4 border-t border-white/10">
-                    <div className="flex items-center gap-2 text-xs font-semibold text-slate-500 uppercase mb-2">
-                      <Search className="w-3 h-3 text-indigo-400" />
-                      Multimodal Brain-Sync
-                    </div>
-                    <div className="flex flex-wrap gap-2">
-                      {msg.groundingLinks.map((chunk, i) => chunk.web && (
-                        <a 
-                          key={i} 
-                          href={chunk.web.uri} 
-                          target="_blank" 
-                          rel="noopener noreferrer"
-                          className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-500/5 hover:bg-indigo-500/15 border border-indigo-500/20 rounded-lg text-xs text-indigo-300 transition-all hover:scale-105"
-                        >
-                          <span className="truncate max-w-[150px]">{chunk.web.title || chunk.web.uri}</span>
-                          <ExternalLink className="w-3 h-3 shrink-0 opacity-50" />
-                        </a>
-                      ))}
-                    </div>
-                  </div>
-                )}
               </div>
             </div>
           ))}
