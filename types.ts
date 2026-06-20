@@ -4,14 +4,6 @@ export interface Message {
   role: 'user' | 'assistant';
   content: string;
   timestamp: number;
-  groundingLinks?: GroundingChunk[];
-}
-
-export interface GroundingChunk {
-  web?: {
-    uri: string;
-    title: string;
-  };
 }
 
 export interface Session {
