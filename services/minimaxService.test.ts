@@ -50,7 +50,7 @@ describe('MiniMaxService', () => {
     });
     expect(JSON.parse(String(init.body))).toEqual({
       model: 'MiniMax-M3',
-      thinking: { type: 'adaptive' },
+      thinking: { type: 'disabled' },
       messages: [
         { role: 'system', content: BRAINSTORMFLOW_SYSTEM_PROMPT },
         { role: 'user', content: 'First idea' },
@@ -80,6 +80,21 @@ describe('MiniMaxService', () => {
     );
   });
 
+  it('preserves the HTTP status when an error response is not JSON', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(
+      new Response('<html>Bad gateway</html>', {
+        status: 502,
+        statusText: 'Bad Gateway',
+        headers: { 'Content-Type': 'text/html' },
+      }),
+    );
+    const service = new MiniMaxService('test-key', fetchMock);
+
+    await expect(service.generateResponse(history)).rejects.toThrow(
+      'MiniMax request failed (502): Bad Gateway',
+    );
+  });
+
   it('returns a friendly fallback when MiniMax returns no text', async () => {
     const fetchMock = vi.fn().mockResolvedValue(
       jsonResponse({ choices: [{ message: { role: 'assistant', content: '' } }] }),
@@ -88,6 +103,43 @@ describe('MiniMaxService', () => {
 
     await expect(service.generateResponse(history)).resolves.toEqual({
       text: "I'm sorry, I couldn't generate a response.",
+    });
+  });
+
+  it('removes MiniMax thinking traces from the rendered response', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(
+      jsonResponse({
+        choices: [{
+          message: {
+            role: 'assistant',
+            content: '<think>Internal reasoning that users should not see.</think>\nVisible answer',
+          },
+        }],
+      }),
+    );
+    const service = new MiniMaxService('test-key', fetchMock);
+
+    await expect(service.generateResponse(history)).resolves.toEqual({
+      text: 'Visible answer',
+    });
+  });
+
+  it('calls browser fetch with the global object as its receiver', async () => {
+    const browserLikeFetch = vi.fn(function (this: unknown) {
+      if (this !== globalThis) {
+        throw new TypeError('Illegal invocation');
+      }
+
+      return Promise.resolve(
+        jsonResponse({
+          choices: [{ message: { role: 'assistant', content: 'Browser-safe' } }],
+        }),
+      );
+    });
+    const service = new MiniMaxService('test-key', browserLikeFetch);
+
+    await expect(service.generateResponse(history)).resolves.toEqual({
+      text: 'Browser-safe',
     });
   });
 });

@@ -126,6 +126,7 @@ const App: React.FC = () => {
           : s
       ));
     } catch (error) {
+      console.error('MiniMax API Error:', error);
       const errorMessage: Message = {
         id: 'error',
         role: 'assistant',

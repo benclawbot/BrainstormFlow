@@ -49,7 +49,7 @@ Create tests that instantiate `MiniMaxService` with a fake key and mocked `fetch
 ```json
 {
   "model": "MiniMax-M3",
-  "thinking": { "type": "adaptive" },
+  "thinking": { "type": "disabled" },
   "messages": [
     { "role": "system", "content": "<BrainstormFlow system prompt>" },
     { "role": "user", "content": "First idea" },

@@ -21,11 +21,21 @@ interface MiniMaxResponse {
   };
 }
 
+function removeThinkingTrace(content: string): string {
+  return content.replace(/<think>[\s\S]*?(?:<\/think>|$)\s*/gi, '').trim();
+}
+
 export class MiniMaxService {
+  private readonly apiKey: string | undefined;
+  private readonly fetchImpl: FetchLike;
+
   constructor(
-    private readonly apiKey = process.env.MINIMAX_API_KEY,
-    private readonly fetchImpl: FetchLike = fetch,
-  ) {}
+    apiKey = process.env.MINIMAX_API_KEY,
+    fetchImpl: FetchLike = globalThis.fetch,
+  ) {
+    this.apiKey = apiKey;
+    this.fetchImpl = fetchImpl.bind(globalThis);
+  }
 
   async generateResponse(history: Message[]): Promise<{ text: string }> {
     if (!this.apiKey) {
@@ -40,7 +50,7 @@ export class MiniMaxService {
       },
       body: JSON.stringify({
         model: MINIMAX_MODEL,
-        thinking: { type: 'adaptive' },
+        thinking: { type: 'disabled' },
         messages: [
           { role: 'system', content: BRAINSTORMFLOW_SYSTEM_PROMPT },
           ...history.map(({ role, content }) => ({ role, content })),
@@ -48,7 +58,12 @@ export class MiniMaxService {
       }),
     });
 
-    const data = (await response.json()) as MiniMaxResponse;
+    let data: MiniMaxResponse = {};
+    try {
+      data = (await response.json()) as MiniMaxResponse;
+    } catch {
+      // Some gateways return HTML or plain text for upstream failures.
+    }
 
     if (!response.ok) {
       const detail =
@@ -60,7 +75,9 @@ export class MiniMaxService {
     }
 
     return {
-      text: data.choices?.[0]?.message?.content?.trim() || EMPTY_RESPONSE_FALLBACK,
+      text:
+        removeThinkingTrace(data.choices?.[0]?.message?.content || '') ||
+        EMPTY_RESPONSE_FALLBACK,
     };
   }
 }

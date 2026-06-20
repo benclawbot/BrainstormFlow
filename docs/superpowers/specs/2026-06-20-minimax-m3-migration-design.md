@@ -10,6 +10,8 @@ The application remains a client-only React and Vite app. A focused `MiniMaxServ
 
 The request will send the existing BrainstormFlow system prompt as a `system` message followed by the complete session history as `user` and `assistant` messages. The service will return the first assistant message's text content.
 
+Thinking is disabled for this conversational UI, and any unexpected `<think>` trace is stripped defensively before rendering.
+
 The Vite configuration will expose `MINIMAX_API_KEY` to the browser bundle for local use. This matches the current Gemini architecture, but the README must clearly state that this is suitable only for trusted local testing because browser-delivered API keys are visible to users.
 
 ## Scope
