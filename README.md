@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="assets/brainstormflow-banner.svg" alt="BrainstormFlow" width="100%" />
+</p>
+
 # BrainstormFlow
 
 BrainstormFlow is a MiniMax M3-powered ideation workspace for exploring rough ideas, creative directions, and unusual prompts in a persistent chat-style interface.
